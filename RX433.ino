@@ -1,4 +1,3 @@
-//проверка гит хаб
 //<-датчик температры/////////////////////////////////////////////
 
 #include <OneWire.h>
@@ -14,7 +13,6 @@ DeviceAddress temperatureSensors[5]; // Размер массива опреде
 uint8_t deviceCount = 0;
 
 //датчик температры->/////////////////////////////////////////////
-
 
 
 #define DATA_PIN    12 // пин данных
@@ -40,9 +38,6 @@ Adafruit_SSD1306 display = Adafruit_SSD1306(128, 64, &WIRE);
 
 #include <ESP8266HTTPClient.h>
 #include <WiFiClient.h>
-
-String serverName = "http://192.168.31.155/";//pir?name=pit&pin=Flask&State=DigitalOcean";
-
 
 GyverPortal portal;
 
@@ -78,14 +73,6 @@ EspMQTTClient client(
   Settings.MQTTid
 );
 
-/*
-  "dev.rightech.io",
-  "lushnikov8",
-  "1122334455",
-  "mqtt-lushnikov8-work"
-*/
-
-
 bool SettingMode = false;
 
 byte SettingsPin = 14;//D5 пин настроек
@@ -93,9 +80,6 @@ byte SettingsPin = 14;//D5 пин настроек
 unsigned long lastTime = 0;
 unsigned long timerDelay = 1000;
 unsigned long timerDelay2000 = 2000;
-
-
-//char SelectsItemWiFi[40];
 
 String WiFiOptionForSelect="";
 
@@ -112,8 +96,6 @@ void ICACHE_RAM_ATTR isr() {
   rx.tickISR();
 }
 //RX 433
-
-
 
 
 void setup() {
@@ -134,20 +116,6 @@ void setup() {
   pinMode(LATCH_PIN, OUTPUT);
   digitalWrite(LATCH_PIN, HIGH);
 
-  /* Стиарая схема для одного регистра прокатывала для 2х надо по 8 бит слать
-  byte CurrentRegister;
-  //Заполняем состояние регистра
-  for (byte i = 0; i < 16; i++){
-    
-    //Serial.print(bitRead(registerStats,i));
-
-    bitWrite(CurrentRegister, i, Settings.registerStates[i]);
-
-  }
-  out_595_shift(CurrentRegister);
-  */
-
-  ///////////////////
 
   byte CurrentRegister=0;
   //Заполняем состояние регистра
@@ -156,7 +124,6 @@ void setup() {
   byte CurrentRegister2=0;
   //Заполняем состояние регистра
   for (byte i = 0; i <= 7; i++) bitWrite(CurrentRegister2, i, Settings.registerStates[i+8]);
-
 
   
   Serial.println("расчёт CurrentRegister:");
@@ -167,17 +134,10 @@ void setup() {
   printBinaryByte(CurrentRegister2);
   Serial.println();
   
-  //out_595_shift(CurrentRegister2);
-  //out_595_shift(CurrentRegister);
-
   digitalWrite(LATCH_PIN, LOW);               // "открываем защелку"
   shiftOut(DATA_PIN, CLOCK_PIN, MSBFIRST, CurrentRegister2); // отправляем данные
   shiftOut(DATA_PIN, CLOCK_PIN, MSBFIRST, CurrentRegister); // отправляем данные
   digitalWrite(LATCH_PIN, HIGH);              // "закрываем защелку", выходные ножки регистра установлены
-
-
-
-
 
 ////74CH595->
 
@@ -194,7 +154,6 @@ void setup() {
   }
   //Датчик температуры DS18B20 ->
   
-
   
   //<- Инициализаия дисплэя
   Serial.println("OLED FeatherWing test");
@@ -291,11 +250,6 @@ void ConnectWiFiClient(){
     Serial.println(count2);
     
 
-
-  //Blynk.begin(auth, Settings.ssid, Settings.pass);
-  //Blynk.begin(auth);
-  //timerBy.setInterval(1000L, sendSensor);
-
 }
 
 int CalculateCountChar(char *CurrentChar){
@@ -308,16 +262,11 @@ int CalculateCountChar(char *CurrentChar){
 }
 
 
-
-
 void loop() {
 
  // gotData() вернёт количество удачно принятых байт
   if (rx.gotData()) {   // если больше 0    
     
-    
-
-
     switch (rx.buffer[0]) { // Получаем адрес модуля
       case 0xA1:            // Кнопка
         Serial.println(rx.buffer[1] ? "Отпустили кнопку" : "Нажали кнопку");
@@ -352,10 +301,7 @@ void loop() {
     }//switch
   }//if (rx.gotData())
 
-
-  
  
-  // put your main code here, to run repeatedly:
   portal.tick();
 
 
@@ -363,24 +309,6 @@ void loop() {
     
     sensors.requestTemperatures();
     
-    //Serial.println(analogRead(A0));
-    //      Serial.println(digitalRead(SettingsPin));
-  
-    /*
-   if (WiFi.status() == WL_CONNECTED) {
-    WiFiClient client;
-    HTTPClient http;
-   
-    String serverPath = serverName+ "pir?namepir="+Namepir+"&pin="+Pin+"&State="+StatePin+"";//"; //+ "?temperature=24.37";
-    Serial.println(serverPath);
-    
-
-
-   }
-    */
-
-   
-
 
    lastTime = millis();
   }
@@ -391,7 +319,6 @@ void loop() {
     {
       printAddress(temperatureSensors[i]); // Выводим название датчика
       Serial.print(": ");
-      
       
       Serial.println(sensors.getTempC(temperatureSensors[i])); // Выводим температуру с датчика
     }
@@ -412,8 +339,6 @@ void loop() {
    
     display.println(sensors.getTempC(temperatureSensors[0]));
     display.display();
-
-
 
 
     if (Settings.MQTT_Enable == true) {
@@ -539,29 +464,7 @@ void actionSettings(GyverPortal &p){
 
   
   }//portal.form()
-
-  /*
-  if (portal.click("btnScan")) {
-      
-      Serial.println("Click! btnScan");
-      
-      //Serial.println(portal.getString("language"));
-      
-      
-      int n = WiFi.scanNetworks();
-
-      if (n>0) Serial.println("Количество найденых сетей "+String(n)+":");
-      else Serial.println("Сети не найдены.");
-
-      for (int i = 0; i < n; i++)
-      {
-        Serial.println(WiFi.SSID(i));
-      }
-
-      //portal.answer("1,2,3");
-      
-  }
-  */
+ 
 }
 
 
@@ -576,155 +479,103 @@ void build() {
 
   GP.NAV_BLOCK_BEGIN("navA", 0);
 
-    GP.LABEL("Led 0: "); 
-    GP.SWITCH("pos0", Settings.registerStates[0]);
-    GP.BREAK();
+  GP.LABEL("Led 0: "); 
+  GP.SWITCH("pos0", Settings.registerStates[0]);
+  GP.BREAK();
 
-    GP.LABEL("Led 1: "); 
-    GP.SWITCH("pos1", Settings.registerStates[1]);
-    GP.BREAK();
+  GP.LABEL("Led 1: "); 
+  GP.SWITCH("pos1", Settings.registerStates[1]);
+  GP.BREAK();
   
-    GP.LABEL("Led 2: "); 
-    GP.SWITCH("pos2", Settings.registerStates[2]);
-    GP.BREAK();
+  GP.LABEL("Led 2: "); 
+  GP.SWITCH("pos2", Settings.registerStates[2]);
+  GP.BREAK();
     
-    GP.LABEL("Led 3: "); 
-    GP.SWITCH("pos3", Settings.registerStates[3]);
-    GP.BREAK();
+  GP.LABEL("Led 3: "); 
+  GP.SWITCH("pos3", Settings.registerStates[3]);
+  GP.BREAK();
   
-    GP.LABEL("Led 4: "); 
-    GP.SWITCH("pos4", Settings.registerStates[4]);
-    GP.BREAK();
+  GP.LABEL("Led 4: "); 
+  GP.SWITCH("pos4", Settings.registerStates[4]);
+  GP.BREAK();
   
-    GP.LABEL("Led 5: "); 
-    GP.SWITCH("pos5", Settings.registerStates[5]);
-    GP.BREAK();
+  GP.LABEL("Led 5: "); 
+  GP.SWITCH("pos5", Settings.registerStates[5]);
+  GP.BREAK();
   
-    GP.LABEL("Led 6: "); 
-    GP.SWITCH("pos6", Settings.registerStates[6]);
-    GP.BREAK();
+  GP.LABEL("Led 6: "); 
+  GP.SWITCH("pos6", Settings.registerStates[6]);
+  GP.BREAK();
   
-    GP.LABEL("Led 7: "); 
-    GP.SWITCH("pos7", Settings.registerStates[7]);
-    GP.BREAK();
+  GP.LABEL("Led 7: "); 
+  GP.SWITCH("pos7", Settings.registerStates[7]);
+  GP.BREAK();
 
-    GP.LABEL("Led 8: "); 
-    GP.SWITCH("pos8", Settings.registerStates[8]);
-    GP.BREAK();
+  GP.LABEL("Led 8: "); 
+  GP.SWITCH("pos8", Settings.registerStates[8]);
+  GP.BREAK();
   
-    GP.LABEL("Led 9: "); 
-    GP.SWITCH("pos9", Settings.registerStates[9]);
-    GP.BREAK();
+  GP.LABEL("Led 9: "); 
+  GP.SWITCH("pos9", Settings.registerStates[9]);
+  GP.BREAK();
   
-    GP.LABEL("Led 10: "); 
-    GP.SWITCH("pos10", Settings.registerStates[10]);
-    GP.BREAK();
+  GP.LABEL("Led 10: "); 
+  GP.SWITCH("pos10", Settings.registerStates[10]);
+  GP.BREAK();
   
-    GP.LABEL("Led 11: "); 
-    GP.SWITCH("pos11", Settings.registerStates[11]);
-    GP.BREAK();
+  GP.LABEL("Led 11: "); 
+  GP.SWITCH("pos11", Settings.registerStates[11]);
+  GP.BREAK();
   
-    GP.LABEL("Led 12: "); 
-    GP.SWITCH("pos12", Settings.registerStates[12]);
-    GP.BREAK();
+  GP.LABEL("Led 12: "); 
+  GP.SWITCH("pos12", Settings.registerStates[12]);
+  GP.BREAK();
   
-    GP.LABEL("Led 13: "); 
-    GP.SWITCH("pos13", Settings.registerStates[13]);
-    GP.BREAK();
+  GP.LABEL("Led 13: "); 
+  GP.SWITCH("pos13", Settings.registerStates[13]);
+  GP.BREAK();
   
-    GP.LABEL("Led 14: "); 
-    GP.SWITCH("pos14", Settings.registerStates[14]);
-    GP.BREAK();
+  GP.LABEL("Led 14: "); 
+  GP.SWITCH("pos14", Settings.registerStates[14]);
+  GP.BREAK();
     
-    GP.LABEL("Led 15: "); 
-    GP.SWITCH("pos15", Settings.registerStates[15]);
-    GP.BREAK();
-
-  
-  
-  
+  GP.LABEL("Led 15: "); 
+  GP.SWITCH("pos15", Settings.registerStates[15]);
+  GP.BREAK();
   
   GP.NAV_BLOCK_END();
 
   GP.NAV_BLOCK_BEGIN("navA", 1);
 
-
-
   GP.FORM_BEGIN("/SettingsDevice");
 
   GP.BLOCK_BEGIN();
-  ///////////////////////////////////////////////////////////////////////
-
-    GP.LABEL("MQTT"); 
-    GP.SWITCH("MQTT_Enable", Settings.MQTT_Enable); 
-    GP.BREAK();  
+  GP.LABEL("MQTT"); 
+  GP.SWITCH("MQTT_Enable", Settings.MQTT_Enable); 
+  GP.BREAK();  
    
-    GP.TEXT("MQTTServer", "MQTTServer", Settings.MQTTServer); 
-    GP.BREAK();                  
+  GP.TEXT("MQTTServer", "MQTTServer", Settings.MQTTServer); 
+  GP.BREAK();                  
 
-    GP.TEXT("MQTTLogin", "MQTTLogin", Settings.MQTTLogin); 
-    GP.BREAK();                  
+  GP.TEXT("MQTTLogin", "MQTTLogin", Settings.MQTTLogin); 
+  GP.BREAK();                  
   
-    GP.TEXT("MQTTPwd", "MQTTPwd", Settings.MQTTPwd); 
-    GP.BREAK();                  
+  GP.TEXT("MQTTPwd", "MQTTPwd", Settings.MQTTPwd); 
+  GP.BREAK();                  
 
-    GP.TEXT("MQTTid", "MQTTideb", Settings.MQTTid); 
-    GP.BREAK();                  
-                  
-
+  GP.TEXT("MQTTid", "MQTTideb", Settings.MQTTid); 
+  GP.BREAK();                  
+  
   GP.BLOCK_END();
   
   GP.SUBMIT("Сохранить");
   
   GP.FORM_END(); 
-    
-
-
   
   GP.NAV_BLOCK_END();
 
-/*
-  GP.NAV_BLOCK_BEGIN("navA", 2);
-  GP.LABEL("Tab3");
-  GP.NAV_BLOCK_END();
-
-  GP.NAV_BLOCK_BEGIN("navA", 3);
-  GP.LABEL("Tab4");
-  GP.NAV_BLOCK_END();
-*/
   GP.BUILD_END();
 
-/*
-  GP.FORM_BEGIN("/login");     // начать форму, передать имя
-  GP.TEXT("txt", "Login", ""); // ввод текста, подсказка Login, текста нет
-  GP.BREAK();                  // перенос строки
-  GP.SUBMIT("Submit");         // кнопка Submit
-  GP.FORM_END();               // завершить форму
-
-  GP.FORM_BEGIN("/exit");      // начать форму, передать имя
-  GP.SUBMIT("Exit");           // кнопка Exit
-  GP.FORM_END();               // завершить форму
-
-
-  GP.TEXT("txt1", "");
-  GP.BUTTON_MINI("btn", "Send", "txt1");
-  GP.BREAK();
-
-  GP.LABEL("реле1: "); 
-  GP.SWITCH("relay");
-  GP.BREAK();
-  
-  GP.LABEL("Фоторезистор: ");
-  GP.LABEL("","valFotoR");
-  GP.BREAK();
-
-  GP.TEXT("SsidWiFi", "Login", "");
-  GP.BREAK();
-
-
-  */
-  
-  //BUILD_END();                    // завершить построение
 }
 
 
@@ -747,47 +598,6 @@ void action(GyverPortal &p) {
         EEPROM.commit();
     }
   }
-
-
-
-
-
-/*
-  if (portal.form()) {
-    //Serial.print("Submit form: ");
-    
-    if (portal.form("/login")) Serial.println("Login");
-    if (portal.form("/login")) Serial.println(portal.getString("txt"));
-    if (portal.form("/exit")) Serial.println("Exit");
-  
-  }
-
-
-  if (portal.click("exit")) Serial.println("Click exit!");
-
-  if (portal.click("btn")) Serial.println("Click! btn");
-
-/*
-  if (portal.click("relay")) {
-    Serial.println("Click! relay");
-    Serial.println(portal.getCheck("relay"));
-
-    /*
-    EEPROM.get(0, Settings);
-    Serial.println("Читаем память:");
-    Serial.println(Settings.ssid);
-    Serial.println(Settings.pass);
-    Serial.println(Settings.mdns);
-    */
-    
-    
- // }
-
-  //if (portal.update("valFotoR")) portal.answer(analogRead(A0));
-
-
-
-
 
 
   if (portal.click("pos0")) changeState(0,portal.getCheck("pos0"));
@@ -821,9 +631,6 @@ void action(GyverPortal &p) {
   if (portal.click("pos14")) changeState(14,portal.getCheck("pos14"));
 
   if (portal.click("pos15")) changeState(15,portal.getCheck("pos15"));
-
-
-
   
 }
 
@@ -842,8 +649,6 @@ void changeState(byte bitPos, bool State){
   byte CurrentRegister2=0;
   //Заполняем состояние регистра
   for (byte i = 0; i <= 7; i++) bitWrite(CurrentRegister2, i, Settings.registerStates[i+8]);
-
-
   
   Serial.println("расчёт CurrentRegister:");
   printBinaryByte(CurrentRegister);
@@ -853,9 +658,6 @@ void changeState(byte bitPos, bool State){
   printBinaryByte(CurrentRegister2);
   Serial.println();
   
-  //out_595_shift(CurrentRegister2);
-  //out_595_shift(CurrentRegister);
-
   digitalWrite(LATCH_PIN, LOW);               // "открываем защелку"
   shiftOut(DATA_PIN, CLOCK_PIN, MSBFIRST, CurrentRegister2); // отправляем данные
   shiftOut(DATA_PIN, CLOCK_PIN, MSBFIRST, CurrentRegister); // отправляем данные
@@ -864,26 +666,12 @@ void changeState(byte bitPos, bool State){
   
 }
 
-void out_595_shift(byte x) {
-  
-  Serial.println("записываем в shiftOut:");
-  printBinaryByte(x);
-  Serial.println();
-
-  digitalWrite(LATCH_PIN, LOW);               // "открываем защелку"
-  shiftOut(DATA_PIN, CLOCK_PIN, MSBFIRST, x); // отправляем данные
-  digitalWrite(LATCH_PIN, HIGH);              // "закрываем защелку", выходные ножки регистра установлены
-
-}
-
 void printBinaryByte(byte value)  {
   //for (byte mask = 0x80; mask; mask >>= 1)  {
   for (byte mask = 0x80; mask; mask >>= 1)  {
     Serial.print((mask & value) ? '1' : '0');
   }
 }
-
-
 
 void GetVisibleWiFiSSID(){
 
