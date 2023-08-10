@@ -134,6 +134,7 @@ void setup() {
   pinMode(LATCH_PIN, OUTPUT);
   digitalWrite(LATCH_PIN, HIGH);
 
+  /* Стиарая схема для одного регистра прокатывала для 2х надо по 8 бит слать
   byte CurrentRegister;
   //Заполняем состояние регистра
   for (byte i = 0; i < 16; i++){
@@ -144,6 +145,39 @@ void setup() {
 
   }
   out_595_shift(CurrentRegister);
+  */
+
+  ///////////////////
+
+  byte CurrentRegister=0;
+  //Заполняем состояние регистра
+  for (byte i = 0; i <= 7; i++) bitWrite(CurrentRegister, i, Settings.registerStates[i]);
+
+  byte CurrentRegister2=0;
+  //Заполняем состояние регистра
+  for (byte i = 0; i <= 7; i++) bitWrite(CurrentRegister2, i, Settings.registerStates[i+8]);
+
+
+  
+  Serial.println("расчёт CurrentRegister:");
+  printBinaryByte(CurrentRegister);
+  Serial.println();
+
+  Serial.println("расчёт CurrentRegister2:");
+  printBinaryByte(CurrentRegister2);
+  Serial.println();
+  
+  //out_595_shift(CurrentRegister2);
+  //out_595_shift(CurrentRegister);
+
+  digitalWrite(LATCH_PIN, LOW);               // "открываем защелку"
+  shiftOut(DATA_PIN, CLOCK_PIN, MSBFIRST, CurrentRegister2); // отправляем данные
+  shiftOut(DATA_PIN, CLOCK_PIN, MSBFIRST, CurrentRegister); // отправляем данные
+  digitalWrite(LATCH_PIN, HIGH);              // "закрываем защелку", выходные ножки регистра установлены
+
+
+
+
 
 ////74CH595->
 
